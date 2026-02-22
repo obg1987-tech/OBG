@@ -12,16 +12,20 @@ import { useVoice } from './useVoice';
 function App() {
   const [isKoreanMode, setIsKoreanMode] = useState(true);
   const [inputText, setInputText] = useState("");
-  const [response, setResponse] = useState("");
-  const [translationData, setTranslationData] = useState(null);
+  const isTouchDevice = typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+
+  const [response, setResponse] = useState(isTouchDevice ? "" : "안녕하세요, OBG AI 어시스턴트입니다. 어떤 대화를 나누고 싶으신가요?");
+  const [translationData, setTranslationData] = useState(isTouchDevice ? null : {
+    sub_translation: "Hello! I'm the OBG AI Assistant. What would you like to talk about today?",
+    vocab_notes: []
+  });
   const [isThinking, setIsThinking] = useState(false);
   const [isTalking, setIsTalking] = useState(false);
   const [isRecordingState, setIsRecordingState] = useState(false); // UI State for Recording Status
   const [hoverUI, setHoverUI] = useState(false);
   const [robotEmotion, setRobotEmotion] = useState('default');
   const [showPopup, setShowPopup] = useState(false);
-  const [hasInteracted, setHasInteracted] = useState(false);
-  const isTouchDevice = typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+  const [hasInteracted, setHasInteracted] = useState(!isTouchDevice);
 
   const toggleMode = () => {
     setIsKoreanMode(prev => {
