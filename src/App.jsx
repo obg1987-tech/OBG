@@ -242,11 +242,10 @@ function App() {
     });
 
     // Trigger the speech manually once
-    setTimeout(() => {
-      speak("안녕하세요, OBG AI 어시스턴트입니다. 어떤 대화를 나누고 싶으신가요?", true);
-      setIsTalking(true);
-      setTimeout(() => setIsTalking(false), 3000);
-    }, 500);
+    // Must be directly inside the click handler to count as user interaction in WebViews
+    speak("안녕하세요, OBG AI 어시스턴트입니다. 어떤 대화를 나누고 싶으신가요?", true);
+    setIsTalking(true);
+    setTimeout(() => setIsTalking(false), 3000);
   };
 
   return (
