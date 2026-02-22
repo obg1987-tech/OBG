@@ -208,18 +208,29 @@ function App() {
         stop(); // Stop any bot speech if user interrupts
       };
 
-      let finalTranscript = transcriptRef.current === "듣는 중... (말씀해 주세요)" ? "" : transcriptRef.current;
+      const startingTranscript = transcriptRef.current === "듣는 중... (말씀해 주세요)" ? "" : transcriptRef.current;
+
       recognition.onresult = (event) => {
-        let interimTranscript = '';
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
+        let currentSessionFinal = '';
+        let currentSessionInterim = '';
+
+        // Android STT Duplication fix: Always rebuild from index 0 of current session
+        for (let i = 0; i < event.results.length; ++i) {
           if (event.results[i].isFinal) {
-            finalTranscript += event.results[i][0].transcript;
+            currentSessionFinal += event.results[i][0].transcript;
           } else {
-            interimTranscript += event.results[i][0].transcript;
+            currentSessionInterim += event.results[i][0].transcript;
           }
         }
+
+        let fullTranscript = startingTranscript;
+        if (currentSessionFinal || currentSessionInterim) {
+          fullTranscript = startingTranscript
+            ? startingTranscript + " " + currentSessionFinal + currentSessionInterim
+            : currentSessionFinal + currentSessionInterim;
+        }
+
         // Show what they are saying in real time
-        const fullTranscript = finalTranscript + interimTranscript;
         setInputText(fullTranscript);
         transcriptRef.current = fullTranscript;
       };
