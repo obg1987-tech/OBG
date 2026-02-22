@@ -94,9 +94,14 @@ function App() {
     if (e && e.preventDefault) e.preventDefault();
 
     const submittedText = forceText !== null ? forceText : inputText;
-    if (!submittedText.trim()) return;
+    if (!submittedText.trim() || submittedText === "듣는 중... (말씀해 주세요)") return;
 
     unlockAudio(); // Unlock audio context on mobile immediately upon user action
+
+    // forcefully stop recognition to prevent delayed STT overlap when hitting enter
+    if (isRecording.current) {
+      stopRecording();
+    }
 
     const userText = submittedText;
     setInputText("");
@@ -194,7 +199,8 @@ function App() {
       }
       const recognition = recognitionRef.current;
 
-      recognition.continuous = true; // Keep listening while holding
+      // Desktop uses continuous = true (Hold-to-speak). Mobile uses continuous = false (Toggle-to-speak) to fix Android duplicate bug.
+      recognition.continuous = !isTouchDevice;
       recognition.interimResults = true;
       recognition.lang = isKoreanMode ? 'ko-KR' : 'en-US';
 
@@ -208,14 +214,14 @@ function App() {
         stop(); // Stop any bot speech if user interrupts
       };
 
+      // Ensure stable resume
       const startingTranscript = transcriptRef.current === "듣는 중... (말씀해 주세요)" ? "" : transcriptRef.current;
 
       recognition.onresult = (event) => {
         let currentSessionFinal = '';
         let currentSessionInterim = '';
 
-        // Android STT Duplication fix: Always rebuild from index 0 of current session
-        for (let i = 0; i < event.results.length; ++i) {
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
           if (event.results[i].isFinal) {
             currentSessionFinal += event.results[i][0].transcript;
           } else {
