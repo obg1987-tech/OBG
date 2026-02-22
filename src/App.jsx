@@ -55,6 +55,8 @@ function App() {
 
   useEffect(() => {
     // Entrance Animations using GSAP
+    if (!titleRef.current || !responseRef.current || !inputContainerRef.current) return;
+
     const tl = gsap.timeline();
 
     tl.fromTo(titleRef.current,

@@ -6,18 +6,28 @@ export function useVoice() {
 
     // Browsers load voices asynchronously, so we need to capture them when they are ready.
     useEffect(() => {
-        const loadVoices = () => setVoices(window.speechSynthesis.getVoices());
-        loadVoices();
-        if ('onvoiceschanged' in window.speechSynthesis) {
-            window.speechSynthesis.onvoiceschanged = loadVoices;
+        if (typeof window !== 'undefined' && window.speechSynthesis) {
+            try {
+                const loadVoices = () => {
+                    if (window.speechSynthesis.getVoices) {
+                        setVoices(window.speechSynthesis.getVoices());
+                    }
+                };
+                loadVoices();
+                if ('onvoiceschanged' in window.speechSynthesis) {
+                    window.speechSynthesis.onvoiceschanged = loadVoices;
+                }
+            } catch (err) {
+                console.warn('SpeechSynthesis API error:', err);
+            }
         }
     }, []);
 
     // Pick a high-quality human-like voice for coaching
 
     const speak = useCallback((text, isKoreanMode = false) => {
-        if (!('speechSynthesis' in window)) {
-            console.warn("Speech Synthesis not supported in this browser.");
+        if (typeof window === 'undefined' || !window.speechSynthesis) {
+            console.warn("Speech Synthesis not supported or disabled in this browser.");
             return;
         }
 
@@ -68,8 +78,10 @@ export function useVoice() {
     }, [voices]);
 
     const stop = useCallback(() => {
-        if ('speechSynthesis' in window) {
-            window.speechSynthesis.cancel();
+        if (typeof window !== 'undefined' && window.speechSynthesis) {
+            try {
+                window.speechSynthesis.cancel();
+            } catch (err) { }
             setIsSpeaking(false);
         }
     }, []);
