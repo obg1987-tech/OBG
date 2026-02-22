@@ -1,0 +1,204 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Share+Tech+Mono&display=swap');
+@import url('https://fonts.cdnfonts.com/css/digital-7-mono');
+
+@import "tailwindcss";
+
+@theme {
+  --color-mint: #9df9d9;
+  --color-mint-dark: #6be0b5;
+  --color-bg-dark: #0f172a;
+  --color-bg-darker: #020617;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: var(--color-bg-darker);
+  color: white;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+#root {
+  width: 100vw;
+  height: 100vh;
+}
+
+/* Club/Bass Pumping Animation for Logo */
+@keyframes club-pump {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 20px rgba(45, 212, 191, 0.2);
+    border-color: rgba(45, 212, 191, 0.2);
+  }
+
+  15% {
+    transform: scale(1.35) translateY(-5px) rotate(-6deg);
+    box-shadow: 0 0 60px rgba(45, 212, 191, 1);
+    border-color: rgba(45, 212, 191, 1);
+  }
+
+  30% {
+    transform: scale(0.9) rotate(4deg);
+    box-shadow: 0 0 10px rgba(45, 212, 191, 0.2);
+    border-color: rgba(45, 212, 191, 0.4);
+  }
+
+  45% {
+    transform: scale(1.2) rotate(-2deg);
+    box-shadow: 0 0 40px rgba(45, 212, 191, 0.8);
+    border-color: rgba(45, 212, 191, 0.8);
+  }
+
+  60% {
+    transform: scale(1);
+    box-shadow: 0 0 20px rgba(45, 212, 191, 0.2);
+    border-color: rgba(45, 212, 191, 0.2);
+  }
+
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 20px rgba(45, 212, 191, 0.2);
+    border-color: rgba(45, 212, 191, 0.2);
+  }
+}
+
+.animate-club {
+  animation: club-pump 0.85s infinite ease-in-out;
+  transform-origin: center;
+}
+
+/* Holographic Flicker for UI Elements */
+@keyframes holographic-flicker {
+  0% {
+    opacity: 0.95;
+    filter: drop-shadow(0 0 10px rgba(45, 212, 191, 0.5));
+  }
+
+  2% {
+    opacity: 0.7;
+    filter: drop-shadow(0 0 15px rgba(45, 212, 191, 0.8));
+  }
+
+  4% {
+    opacity: 0.95;
+    filter: drop-shadow(0 0 10px rgba(45, 212, 191, 0.5));
+  }
+
+  10% {
+    opacity: 0.9;
+  }
+
+  11% {
+    opacity: 1;
+    filter: drop-shadow(0 0 5px rgba(45, 212, 191, 0.3));
+  }
+
+  40% {
+    opacity: 0.95;
+  }
+
+  42% {
+    opacity: 0.8;
+    filter: drop-shadow(0 0 20px rgba(45, 212, 191, 0.9));
+  }
+
+  44% {
+    opacity: 0.95;
+    filter: drop-shadow(0 0 10px rgba(45, 212, 191, 0.5));
+  }
+
+  100% {
+    opacity: 0.95;
+  }
+}
+
+.animate-hologram {
+  animation: holographic-flicker 4s infinite alternate;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.6) 0%, rgba(2, 6, 23, 0.8) 100%);
+  border: 1px solid rgba(45, 212, 191, 0.3);
+  box-shadow: inset 0 0 20px rgba(45, 212, 191, 0.1);
+  backdrop-filter: blur(12px);
+}
+
+/* Global Brightness Pulse for Background */
+@keyframes global-pulse {
+  0% {
+    filter: brightness(1) contrast(1);
+  }
+
+  50% {
+    filter: brightness(1.2) contrast(1.1);
+  }
+
+  100% {
+    filter: brightness(1) contrast(1);
+  }
+}
+
+.bg-global-pulse {
+  animation: global-pulse 0.4s ease-out;
+}
+
+/* Waveform Bars */
+@keyframes waveform-bounce {
+
+  0%,
+  100% {
+    transform: scaleY(0.1);
+  }
+
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+.waveform-bar {
+  animation: waveform-bounce 0.5s infinite ease-in-out;
+  transform-origin: bottom;
+}
+
+/* Digital-7 Font Override & LED Glitch */
+.font-digital {
+  font-family: 'Digital-7 Mono', 'Share Tech Mono', monospace;
+  letter-spacing: 0.2rem;
+}
+
+@keyframes text-glitch {
+  0% {
+    opacity: 1;
+    text-shadow: 0 0 10px rgba(45, 212, 191, 0.8), 0 0 20px rgba(45, 212, 191, 0.6);
+  }
+
+  2% {
+    opacity: 0.6;
+    text-shadow: 0 0 5px rgba(45, 212, 191, 0.5);
+  }
+
+  4% {
+    opacity: 1;
+    text-shadow: 0 0 15px rgba(45, 212, 191, 1), 0 0 30px rgba(45, 212, 191, 0.8);
+  }
+
+  10% {
+    opacity: 0.9;
+  }
+
+  15% {
+    opacity: 0.5;
+  }
+
+  20% {
+    opacity: 1;
+    text-shadow: 0 0 10px rgba(45, 212, 191, 0.8);
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+.text-glitch {
+  animation: text-glitch 2s infinite linear;
+}
