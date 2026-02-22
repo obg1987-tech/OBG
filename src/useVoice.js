@@ -81,7 +81,9 @@ export function useVoice() {
         if (typeof window !== 'undefined' && window.speechSynthesis) {
             try {
                 window.speechSynthesis.cancel();
-            } catch (err) { }
+            } catch {
+                // Ignore cancellation errors
+            }
             setIsSpeaking(false);
         }
     }, []);
@@ -100,7 +102,9 @@ export function useVoice() {
                 if (window.speechSynthesis.resume) {
                     window.speechSynthesis.resume();
                 }
-            } catch (err) { }
+            } catch {
+                // Ignore resume errors in strict contexts
+            }
         }
     }, []);
 
