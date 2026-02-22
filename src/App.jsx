@@ -43,6 +43,7 @@ function App() {
   // STT Hook (WebkitSpeechRecognition)
   const isRecording = useRef(false);
   const recognitionRef = useRef(null);
+  const transcriptRef = useRef(""); // To store the latest transcript inside closure
 
   // UI Refs for animations
   const uiContainerRef = useRef();
@@ -83,14 +84,17 @@ function App() {
       );
   }, []);
 
-  const handleSend = async (e) => {
-    e.preventDefault();
-    if (!inputText.trim()) return;
+  const handleSend = async (e, forceText = null) => {
+    if (e && e.preventDefault) e.preventDefault();
+
+    const submittedText = forceText !== null ? forceText : inputText;
+    if (!submittedText.trim()) return;
 
     unlockAudio(); // Unlock audio context on mobile immediately upon user action
 
-    const userText = inputText;
+    const userText = submittedText;
     setInputText("");
+    transcriptRef.current = "";
     setIsThinking(true);
     setRobotEmotion('thinking');
     setResponse(""); // Clear for new text
@@ -205,7 +209,9 @@ function App() {
           }
         }
         // Show what they are saying in real time
-        setInputText(finalTranscript + interimTranscript);
+        const fullTranscript = finalTranscript + interimTranscript;
+        setInputText(fullTranscript);
+        transcriptRef.current = fullTranscript;
       };
 
       recognition.onerror = (event) => {
@@ -218,8 +224,13 @@ function App() {
         // Auto-send when they let go
         if (inputContainerRef.current) {
           setHasInteracted(true); // Ensure they are marked interacted
-          const fakeEvent = { preventDefault: () => { } };
-          handleSend(fakeEvent);
+
+          // Use the transcriptRef instead of the stale inputText closure state
+          if (transcriptRef.current.trim() !== '') {
+            handleSend(null, transcriptRef.current);
+          } else {
+            setInputText("");
+          }
         }
       };
 
