@@ -52,6 +52,16 @@ function App() {
   const chatHistory = useRef([]);
 
   useEffect(() => {
+    // 카카오톡 인앱 브라우저 강제 탈출 스크립트
+    // 카카오톡 인앱 브라우저에서는 Web Speech API (TTS/STT)를 정상적으로 지원하지 않는 경우가 많으므로
+    // 접속 즉시 사용자의 기본 브라우저(크롬, 사파리 등)로 강제 우회시킵니다.
+    const userAgent = navigator.userAgent.toLowerCase();
+    if (userAgent.match(/kakaotalk/i)) {
+      location.href = 'kakaotalk://web/openExternal?url=' + encodeURIComponent(location.href);
+    }
+  }, []);
+
+  useEffect(() => {
     // Entrance Animations using GSAP
     if (!titleRef.current || !responseRef.current || !inputContainerRef.current) return;
 
