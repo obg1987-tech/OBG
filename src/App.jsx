@@ -3,11 +3,14 @@ import { Canvas } from '@react-three/fiber';
 import { Environment, PerspectiveCamera, ContactShadows, Float } from '@react-three/drei';
 import { Send, Music, Sparkles, Terminal, Mic, Hexagon, Globe } from 'lucide-react';
 import { gsap } from 'gsap';
-import { Robot } from './Robot';
-import { DataStreamBackground } from './DataStreamBackground';
-import { SummoningCircle } from './SummoningCircle';
+import { lazy } from 'react';
 import { chatWithAI } from './api-service';
 import { useVoice } from './useVoice';
+
+// Lazy load heavy 3D components for performance optimization (Code Splitting)
+const Robot = lazy(() => import('./Robot').then(module => ({ default: module.Robot })));
+const DataStreamBackground = lazy(() => import('./DataStreamBackground').then(module => ({ default: module.DataStreamBackground })));
+const SummoningCircle = lazy(() => import('./SummoningCircle').then(module => ({ default: module.SummoningCircle })));
 
 function App() {
   const [isKoreanMode, setIsKoreanMode] = useState(true);
