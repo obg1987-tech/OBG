@@ -21,6 +21,7 @@ function App() {
   const [robotEmotion, setRobotEmotion] = useState('default');
   const [showPopup, setShowPopup] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
+  const isTouchDevice = typeof window !== 'undefined' && ('ontouchstart' in window || navigator.maxTouchPoints > 0);
 
   const toggleMode = () => {
     setIsKoreanMode(prev => {
@@ -455,12 +456,15 @@ function App() {
             onMouseEnter={() => setHoverUI(true)}
             onMouseLeave={() => setHoverUI(false)}
           >
-            {/* STT Microphone Button (Toggle Mode) */}
+            {/* STT Microphone Button */}
             <button
               type="button"
-              onClick={toggleRecording}
+              onMouseDown={!isTouchDevice ? startRecording : undefined}
+              onMouseUp={!isTouchDevice ? stopRecording : undefined}
+              onMouseLeave={!isTouchDevice ? stopRecording : undefined}
+              onClick={isTouchDevice ? toggleRecording : undefined}
               className={`ml-1 mr-2 p-3 rounded-full transition-all ${isRecordingState ? 'bg-red-500/20 text-red-500 animate-pulse scale-105 shadow-[0_0_20px_rgba(239,68,68,0.5)]' : 'bg-teal-500/10 text-teal-300 hover:text-white hover:bg-teal-500/30 hover:shadow-[0_0_15px_rgba(45,212,191,0.4)]'} select-none`}
-              title={isKoreanMode ? "마이크 켜기/끄기" : "Toggle Microphone"}
+              title={isKoreanMode ? (isTouchDevice ? "마이크 켜기/끄기" : "마이크 꾹 누르기") : (isTouchDevice ? "Toggle Microphone" : "Hold to speak")}
               disabled={isThinking || isTalking}
             >
               <Mic className="w-5 h-5 pointer-events-none drop-shadow-md" />
