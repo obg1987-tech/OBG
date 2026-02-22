@@ -331,7 +331,7 @@ function App() {
         </header>
 
         {/* AI Rapper Speech Bubble */}
-        <div className="flex-1 flex items-center justify-end w-full sm:max-w-[65%] mx-auto mt-4 sm:mt-0 pointer-events-none">
+        <div className="hidden sm:flex flex-1 items-center justify-end w-full sm:max-w-[65%] mx-auto mt-0 pointer-events-none">
           <div
             ref={responseRef}
             className={`w-full max-w-md ml-auto mt-auto mb-10 sm:mb-32 pointer-events-auto backdrop-blur-3xl border border-teal-500/50 p-5 sm:p-7 rounded-3xl relative transition-all duration-500 shadow-2xl ${isTalking
