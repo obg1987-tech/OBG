@@ -16,6 +16,7 @@ function App() {
   const [translationData, setTranslationData] = useState(null);
   const [isThinking, setIsThinking] = useState(false);
   const [isTalking, setIsTalking] = useState(false);
+  const [isRecordingState, setIsRecordingState] = useState(false); // UI State for Recording Status
   const [hoverUI, setHoverUI] = useState(false);
   const [robotEmotion, setRobotEmotion] = useState('default');
   const [showPopup, setShowPopup] = useState(false);
@@ -194,6 +195,7 @@ function App() {
 
       recognition.onstart = () => {
         isRecording.current = true;
+        setIsRecordingState(true);
         setInputText("듣는 중... (말씀해 주세요)"); // Feedback to user
         stop(); // Stop any bot speech if user interrupts
       };
@@ -217,10 +219,12 @@ function App() {
       recognition.onerror = (event) => {
         console.error(event.error);
         isRecording.current = false;
+        setIsRecordingState(false);
       };
 
       recognition.onend = () => {
         isRecording.current = false;
+        setIsRecordingState(false);
         // Auto-send when they let go
         if (inputContainerRef.current) {
           setHasInteracted(true); // Ensure they are marked interacted
@@ -248,6 +252,17 @@ function App() {
     if (recognitionRef.current && isRecording.current) {
       recognitionRef.current.stop();
       isRecording.current = false;
+      setIsRecordingState(false);
+    }
+  };
+
+  const toggleRecording = (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    if (isRecording.current) {
+      stopRecording();
+    } else {
+      transcriptRef.current = ""; // Reset transcript before new recording
+      startRecording();
     }
   };
 
@@ -440,15 +455,12 @@ function App() {
             onMouseEnter={() => setHoverUI(true)}
             onMouseLeave={() => setHoverUI(false)}
           >
-            {/* STT Microphone Button (Hold to Speak) */}
+            {/* STT Microphone Button (Toggle Mode) */}
             <button
               type="button"
-              onMouseDown={startRecording}
-              onMouseUp={stopRecording}
-              onTouchStart={(e) => { e.preventDefault(); startRecording(); }}
-              onTouchEnd={(e) => { e.preventDefault(); stopRecording(); }}
-              className={`ml-1 mr-2 p-3 rounded-full transition-all ${isRecording.current ? 'bg-red-500/20 text-red-500 animate-pulse scale-105 shadow-[0_0_20px_rgba(239,68,68,0.5)]' : 'bg-teal-500/10 text-teal-300 hover:text-white hover:bg-teal-500/30 hover:shadow-[0_0_15px_rgba(45,212,191,0.4)]'} select-none`}
-              title={isKoreanMode ? "마이크 꾹 누르기" : "Hold to record"}
+              onClick={toggleRecording}
+              className={`ml-1 mr-2 p-3 rounded-full transition-all ${isRecordingState ? 'bg-red-500/20 text-red-500 animate-pulse scale-105 shadow-[0_0_20px_rgba(239,68,68,0.5)]' : 'bg-teal-500/10 text-teal-300 hover:text-white hover:bg-teal-500/30 hover:shadow-[0_0_15px_rgba(45,212,191,0.4)]'} select-none`}
+              title={isKoreanMode ? "마이크 켜기/끄기" : "Toggle Microphone"}
               disabled={isThinking || isTalking}
             >
               <Mic className="w-5 h-5 pointer-events-none drop-shadow-md" />
