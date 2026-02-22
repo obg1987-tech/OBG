@@ -443,6 +443,35 @@ function App() {
         {/* Bottom Area: Input + Audio Visualizer */}
         <div className="w-full max-w-2xl mx-auto pointer-events-auto pb-6 sm:pb-36 relative z-20">
 
+          {/* Mobile Only: AI Speech Bubble above the input bar */}
+          {response && (
+            <div className="sm:hidden w-full mb-3 animate-in fade-in slide-in-from-bottom-5 duration-500 pointer-events-auto">
+              <div className="bg-purple-900/80 backdrop-blur-3xl border-2 border-purple-400/40 rounded-[1.5rem] p-4 shadow-[0_0_30px_rgba(168,85,247,0.3),inset_0_0_15px_rgba(168,85,247,0.1)] transition-all duration-300">
+                <div className="flex items-center space-x-2 mb-2">
+                  <div className="p-1 bg-purple-500/30 rounded-md">
+                    <Sparkles className="w-3 h-3 text-purple-300" />
+                  </div>
+                  <span className="text-[10px] font-black text-purple-300 uppercase tracking-widest">
+                    {isKoreanMode ? 'OBG 답변' : 'OBG Response'}
+                  </span>
+                </div>
+                <div className="max-h-[30vh] overflow-y-auto custom-scrollbar pr-1">
+                  <p className="text-[15px] font-bold text-white leading-relaxed">
+                    {response}
+                    {isTalking && <span className="inline-block w-1.5 h-3.5 ml-1 bg-purple-400 animate-pulse" />}
+                  </p>
+                  {translationData?.sub_translation && (
+                    <div className="mt-2 pt-2 border-t border-purple-400/20">
+                      <p className="text-[13px] text-purple-200/80 font-medium">
+                        {translationData.sub_translation}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Spectral Waveform Placeholder (Top of Input Bar) */}
           <div className="flex justify-center items-end space-x-1 h-6 mb-2 opacity-80" aria-hidden="true">
             {[...Array(10)].map((_, idx) => (
