@@ -91,8 +91,15 @@ export function useVoice() {
     const unlockAudio = useCallback(() => {
         if (typeof window !== 'undefined' && window.speechSynthesis) {
             try {
-                const utterance = new SpeechSynthesisUtterance('');
+                // Empty string might be ignored by Safari. Use a space and volume 0.
+                const utterance = new SpeechSynthesisUtterance(' ');
+                utterance.volume = 0;
                 window.speechSynthesis.speak(utterance);
+
+                // Some browsers also need resume() called in a user gesture
+                if (window.speechSynthesis.resume) {
+                    window.speechSynthesis.resume();
+                }
             } catch (err) { }
         }
     }, []);
