@@ -217,7 +217,7 @@ function App() {
   };
 
   return (
-    <div className={`relative w-screen h-screen bg-transparent overflow-hidden font-sans text-white transition-all duration-300 ${isTalking ? 'bg-global-pulse' : ''}`}>
+    <div className={`relative w-screen h-[100dvh] bg-transparent overflow-hidden font-sans text-white transition-all duration-300 ${isTalking ? 'bg-global-pulse' : ''}`}>
       {/* 3D Canvas */}
       <div className="absolute inset-0 z-0">
         <Canvas>
@@ -246,33 +246,33 @@ function App() {
       </div>
 
       {/* UI Overlay */}
-      <div className="absolute inset-0 z-10 pointer-events-none flex flex-col justify-between p-8" ref={uiContainerRef}>
+      <div className="absolute inset-0 z-10 pointer-events-none flex flex-col justify-between p-4 sm:p-8" ref={uiContainerRef}>
 
         {/* Header - Minimalist OBG Logo */}
         <header ref={titleRef} className="flex items-center justify-between pointer-events-auto w-full">
           <button
             onClick={() => setShowPopup(true)}
-            className="w-20 h-20 rounded-[1.5rem] bg-slate-900/60 border border-teal-400/40 backdrop-blur-2xl flex items-center justify-center animate-club cursor-pointer relative group"
+            className="w-16 h-16 sm:w-20 sm:h-20 rounded-[1.5rem] bg-slate-900/60 border border-teal-400/40 backdrop-blur-2xl flex items-center justify-center animate-club cursor-pointer relative group flex-shrink-0"
             title="OBG AI System Info"
           >
-            <span className="text-teal-400 font-digital text-glitch text-3xl mt-1 tracking-widest text-shadow-glow">OBG</span>
+            <span className="text-teal-400 font-digital text-glitch text-2xl sm:text-3xl mt-1 tracking-widest text-shadow-glow">OBG</span>
             <div className="absolute inset-0 rounded-[1.5rem] bg-teal-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 shadow-[0_0_30px_rgba(45,212,191,0.2)]" />
           </button>
 
           <button
             onClick={toggleMode}
-            className="flex items-center space-x-2 bg-slate-900/80 border border-teal-400/40 backdrop-blur-2xl text-teal-400 px-5 py-3 rounded-full hover:bg-teal-400/20 transition-all font-bold shadow-[0_0_15px_rgba(45,212,191,0.3)] active:scale-95"
+            className="flex items-center space-x-2 bg-slate-900/80 border border-teal-400/40 backdrop-blur-2xl text-teal-400 px-3 py-2 sm:px-5 sm:py-3 rounded-full hover:bg-teal-400/20 transition-all font-bold shadow-[0_0_15px_rgba(45,212,191,0.3)] active:scale-95 text-xs sm:text-base ml-2"
           >
-            <Globe className="w-5 h-5" />
-            <span>{isKoreanMode ? 'ENG / 영어 대화 모드로 변경' : 'KOR / Switch to Korean Mode'}</span>
+            <Globe className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+            <span className="whitespace-nowrap">{isKoreanMode ? 'ENG / 변경' : 'KOR / Switch'}</span>
           </button>
         </header>
 
         {/* AI Rapper Speech Bubble */}
-        <div className="flex-1 flex items-center justify-end w-full max-w-[65%] mx-auto">
+        <div className="flex-1 flex items-center justify-end w-full sm:max-w-[65%] mx-auto mt-4 sm:mt-0 pointer-events-none">
           <div
             ref={responseRef}
-            className={`w-full max-w-md ml-auto mb-32 pointer-events-auto backdrop-blur-3xl border border-teal-500/50 p-7 rounded-3xl rounded-tr-md relative transition-all duration-500 shadow-2xl ${isTalking
+            className={`w-full max-w-md ml-auto mt-auto mb-10 sm:mb-32 pointer-events-auto backdrop-blur-3xl border border-teal-500/50 p-5 sm:p-7 rounded-3xl relative transition-all duration-500 shadow-2xl ${isTalking
               ? 'bg-gradient-to-br from-teal-950/80 to-slate-900/95 shadow-[0_0_50px_rgba(45,212,191,0.5),inset_0_0_20px_rgba(45,212,191,0.2)] border-teal-400'
               : 'bg-gradient-to-br from-slate-900/90 to-slate-950/95 shadow-[0_20px_50px_rgba(0,0,0,0.8),0_0_20px_rgba(45,212,191,0.15)] border-teal-500/30'
               }`}
@@ -305,8 +305,8 @@ function App() {
                   <span>{isKoreanMode ? '생각 중...' : 'Thinking...'}</span>
                 </div>
               ) : (
-                <div className="flex flex-col space-y-4">
-                  <p className="text-lg leading-relaxed text-slate-100 font-medium z-20 font-bold">
+                <div className="flex flex-col space-y-4 max-h-[40vh] sm:max-h-full overflow-y-auto pr-2 custom-scrollbar">
+                  <p className="text-base sm:text-lg leading-relaxed text-slate-100 font-medium z-20 font-bold">
                     {response}
                     {isTalking && <span className="inline-block w-2 h-4 ml-1 bg-teal-400 animate-pulse" />}
                   </p>
@@ -348,7 +348,7 @@ function App() {
         </div>
 
         {/* Bottom Area: Input + Audio Visualizer */}
-        <div className="w-full max-w-2xl mx-auto pointer-events-auto pb-36 relative z-20">
+        <div className="w-full max-w-2xl mx-auto pointer-events-auto pb-6 sm:pb-36 relative z-20">
 
           {/* Spectral Waveform Placeholder (Top of Input Bar) */}
           <div className="flex justify-center items-end space-x-1 h-6 mb-2 opacity-80" aria-hidden="true">
