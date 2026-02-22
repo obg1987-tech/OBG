@@ -12,16 +12,14 @@ import { useVoice } from './useVoice';
 function App() {
   const [isKoreanMode, setIsKoreanMode] = useState(true);
   const [inputText, setInputText] = useState("");
-  const [response, setResponse] = useState("안녕하세요, OBG AI 어시스턴트입니다. 어떤 대화를 나누고 싶으신가요?");
-  const [translationData, setTranslationData] = useState({
-    sub_translation: "Hello! I'm the OBG AI Assistant. What would you like to talk about today?",
-    vocab_notes: []
-  });
+  const [response, setResponse] = useState("");
+  const [translationData, setTranslationData] = useState(null);
   const [isThinking, setIsThinking] = useState(false);
   const [isTalking, setIsTalking] = useState(false);
   const [hoverUI, setHoverUI] = useState(false);
   const [robotEmotion, setRobotEmotion] = useState('default');
   const [showPopup, setShowPopup] = useState(false);
+  const [hasInteracted, setHasInteracted] = useState(false);
 
   const toggleMode = () => {
     setIsKoreanMode(prev => {
@@ -165,53 +163,64 @@ function App() {
   const startRecording = () => {
     unlockAudio(); // Unlock audio context on mobile immediately upon user action
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-      alert('Speech recognition is not supported in this browser.');
+      alert('음성 인식을 지원하지 않는 브라우저(카카오톡 등)입니다. 키보드를 사용해 주세요.');
       return;
     }
 
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    recognitionRef.current = new SpeechRecognition();
-    const recognition = recognitionRef.current;
+    try {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!recognitionRef.current) {
+        recognitionRef.current = new SpeechRecognition();
+      }
+      const recognition = recognitionRef.current;
 
-    recognition.continuous = true; // Keep listening while holding
-    recognition.interimResults = true;
-    recognition.lang = isKoreanMode ? 'ko-KR' : 'en-US';
+      recognition.continuous = true; // Keep listening while holding
+      recognition.interimResults = true;
+      recognition.lang = isKoreanMode ? 'ko-KR' : 'en-US';
 
-    recognition.onstart = () => {
-      isRecording.current = true;
-      setInputText("Listening... (Speak Now)"); // Feedback to user
-      stop(); // Stop any bot speech if user interrupts
-    };
+      recognition.onstart = () => {
+        isRecording.current = true;
+        setInputText("듣는 중... (말씀해 주세요)"); // Feedback to user
+        stop(); // Stop any bot speech if user interrupts
+      };
 
-    let finalTranscript = '';
-    recognition.onresult = (event) => {
-      let interimTranscript = '';
-      for (let i = event.resultIndex; i < event.results.length; ++i) {
-        if (event.results[i].isFinal) {
-          finalTranscript += event.results[i][0].transcript;
-        } else {
-          interimTranscript += event.results[i][0].transcript;
+      let finalTranscript = '';
+      recognition.onresult = (event) => {
+        let interimTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            finalTranscript += event.results[i][0].transcript;
+          } else {
+            interimTranscript += event.results[i][0].transcript;
+          }
         }
+        // Show what they are saying in real time
+        setInputText(finalTranscript + interimTranscript);
+      };
+
+      recognition.onerror = (event) => {
+        console.error(event.error);
+        isRecording.current = false;
+      };
+
+      recognition.onend = () => {
+        isRecording.current = false;
+        // Auto-send when they let go
+        if (inputContainerRef.current) {
+          setHasInteracted(true); // Ensure they are marked interacted
+          const fakeEvent = { preventDefault: () => { } };
+          handleSend(fakeEvent);
+        }
+      };
+
+      try {
+        recognition.start();
+      } catch (err) {
+        console.warn("Recognition start error:", err);
       }
-      // Show what they are saying in real time
-      setInputText(finalTranscript + interimTranscript);
-    };
-
-    recognition.onerror = (event) => {
-      console.error(event.error);
-      isRecording.current = false;
-    };
-
-    recognition.onend = () => {
-      isRecording.current = false;
-      // Auto-send when they let go
-      if (inputContainerRef.current) {
-        const fakeEvent = { preventDefault: () => { } };
-        handleSend(fakeEvent);
-      }
-    };
-
-    recognition.start();
+    } catch (err) {
+      console.error("Speech Recognition setup error:", err);
+    }
   };
 
   const stopRecording = () => {
@@ -221,10 +230,49 @@ function App() {
     }
   };
 
+  const handleEnterExperience = () => {
+    unlockAudio(); // MUST BE CALLED IMMEDIATELY IN ONCLICK
+    setHasInteracted(true);
+
+    // Set initial greeting
+    setResponse("안녕하세요, OBG AI 어시스턴트입니다. 어떤 대화를 나누고 싶으신가요?");
+    setTranslationData({
+      sub_translation: "Hello! I'm the OBG AI Assistant. What would you like to talk about today?",
+      vocab_notes: []
+    });
+
+    // Trigger the speech manually once
+    setTimeout(() => {
+      speak("안녕하세요, OBG AI 어시스턴트입니다. 어떤 대화를 나누고 싶으신가요?", true);
+      setIsTalking(true);
+      setTimeout(() => setIsTalking(false), 3000);
+    }, 500);
+  };
+
   return (
     <div className={`relative w-screen h-[100dvh] bg-transparent overflow-hidden font-sans text-white transition-all duration-300 ${isTalking ? 'bg-global-pulse' : ''}`}>
+
+      {/* Welcome Overlay to FORCE user interaction to bypass mobile browser limits */}
+      {!hasInteracted && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-slate-950/95 backdrop-blur-xl transition-opacity duration-500">
+          <div className="flex flex-col items-center p-8 bg-slate-900 border border-teal-500/30 rounded-3xl shadow-2xl text-center max-w-sm">
+            <div className="w-16 h-16 bg-teal-500/20 rounded-full flex items-center justify-center mb-6 animate-pulse">
+              <Music className="w-8 h-8 text-teal-400" />
+            </div>
+            <h1 className="text-2xl font-bold text-white mb-2">OBG AI 어시스턴트</h1>
+            <p className="text-slate-400 mb-8 text-sm">로봇이 대답을 들려드립니다. 카카오톡 인앱 브라우저 등의 설정 해제를 위해 아래 버튼을 눌러 시작해 주세요.</p>
+            <button
+              onClick={handleEnterExperience}
+              className="w-full py-4 bg-teal-500 hover:bg-teal-400 text-slate-900 font-bold rounded-xl transition-all shadow-[0_4px_20px_rgba(45,212,191,0.4)] active:scale-95 text-lg"
+            >
+              채팅 시작하기
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* 3D Canvas */}
-      <div className="absolute inset-0 z-0">
+      <div className="absolute inset-0 z-0 opacity-100 transition-opacity duration-1000">
         <Canvas>
           <PerspectiveCamera makeDefault position={[0, 0.5, 6]} fov={45} />
           <Suspense fallback={null}>
