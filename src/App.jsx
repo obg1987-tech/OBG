@@ -40,7 +40,7 @@ function App() {
   };
 
   // Custom Hook for TTS Web Speech API
-  const { isSpeaking, speak, stop } = useVoice();
+  const { isSpeaking, speak, stop, unlockAudio } = useVoice();
 
   // STT Hook (WebkitSpeechRecognition)
   const isRecording = useRef(false);
@@ -78,6 +78,8 @@ function App() {
   const handleSend = async (e) => {
     e.preventDefault();
     if (!inputText.trim()) return;
+
+    unlockAudio(); // Unlock audio context on mobile immediately upon user action
 
     const userText = inputText;
     setInputText("");
@@ -161,6 +163,7 @@ function App() {
 
   // 3. User Input via STT (Hold to Speak)
   const startRecording = () => {
+    unlockAudio(); // Unlock audio context on mobile immediately upon user action
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
       alert('Speech recognition is not supported in this browser.');
       return;

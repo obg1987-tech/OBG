@@ -86,5 +86,16 @@ export function useVoice() {
         }
     }, []);
 
-    return { isSpeaking, speak, stop };
+    // Needed for strict mobile browsers (like iOS Safari / Android Webviews)
+    // to "warm up" and unlock the audio context within a synchronous user event (click/touch).
+    const unlockAudio = useCallback(() => {
+        if (typeof window !== 'undefined' && window.speechSynthesis) {
+            try {
+                const utterance = new SpeechSynthesisUtterance('');
+                window.speechSynthesis.speak(utterance);
+            } catch (err) { }
+        }
+    }, []);
+
+    return { isSpeaking, speak, stop, unlockAudio };
 }
