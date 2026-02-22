@@ -201,11 +201,14 @@ function App() {
       recognition.onstart = () => {
         isRecording.current = true;
         setIsRecordingState(true);
-        setInputText("듣는 중... (말씀해 주세요)"); // Feedback to user
+        // Don't overwrite existing text with "듣는 중" if resuming
+        if (!transcriptRef.current) {
+          setInputText("듣는 중... (말씀해 주세요)"); // Feedback to user
+        }
         stop(); // Stop any bot speech if user interrupts
       };
 
-      let finalTranscript = '';
+      let finalTranscript = transcriptRef.current === "듣는 중... (말씀해 주세요)" ? "" : transcriptRef.current;
       recognition.onresult = (event) => {
         let interimTranscript = '';
         for (let i = event.resultIndex; i < event.results.length; ++i) {
@@ -230,12 +233,12 @@ function App() {
       recognition.onend = () => {
         isRecording.current = false;
         setIsRecordingState(false);
-        // Auto-send when they let go
-        if (inputContainerRef.current) {
+        // Auto-send ONLY on Desktop (Hold-to-speak) when they let go.
+        // On Mobile, STT auto-stops frequently, so we let the user manually click Send.
+        if (!isTouchDevice && inputContainerRef.current) {
           setHasInteracted(true); // Ensure they are marked interacted
 
-          // Use the transcriptRef instead of the stale inputText closure state
-          if (transcriptRef.current.trim() !== '') {
+          if (transcriptRef.current.trim() !== '' && transcriptRef.current !== "듣는 중... (말씀해 주세요)") {
             handleSend(null, transcriptRef.current);
           } else {
             setInputText("");
@@ -266,7 +269,10 @@ function App() {
     if (isRecording.current) {
       stopRecording();
     } else {
-      transcriptRef.current = ""; // Reset transcript before new recording
+      // Only clear if empty or placeholder
+      if (transcriptRef.current === "듣는 중... (말씀해 주세요)") {
+        transcriptRef.current = "";
+      }
       startRecording();
     }
   };
@@ -460,7 +466,7 @@ function App() {
                     {response}
                     {isTalking && <span className="inline-block w-1.5 h-3.5 ml-1 bg-purple-400 animate-pulse" />}
                   </p>
-                  {translationData?.sub_translation && (
+                  {translationData?.sub_translation && !isKoreanMode && (
                     <div className="mt-2 pt-2 border-t border-purple-400/20">
                       <p className="text-[13px] text-purple-200/80 font-medium">
                         {translationData.sub_translation}
